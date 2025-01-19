@@ -145,7 +145,7 @@ export default function TShirtFlow({ uuid }) {
                             return (
                                 <input
                                     key={index}
-                                    type="text"
+                                    type="tel"
                                     maxLength={1}
                                     className={`input input-bordered w-12 text-center text-lg ${showInputError ? "input-error border-2" : ""
                                         }`}
