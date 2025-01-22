@@ -10,7 +10,7 @@ const shirtSchema = new mongoose.Schema({
     },
     assignedTo: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'Membre',
         default: null, // means not yet claimed
     },
     assignedAt: {

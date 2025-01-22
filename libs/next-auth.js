@@ -1,43 +1,58 @@
 import GoogleProvider from "next-auth/providers/google";
 import EmailProvider from "next-auth/providers/email";
+import CredentialsProvider from "next-auth/providers/credentials"
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import config from "@/config";
 import connectMongo from "./mongo";
+import { userExist, userExistById } from "@/actions/auth.actions";
+import bcrypt from "bcryptjs";
+
 
 export const authOptions = {
   // Set any random key in .env.local
   secret: process.env.NEXTAUTH_SECRET,
+  pages: {
+    signIn: "/auth/login",
+  },
   providers: [
-    GoogleProvider({
-      // Follow the "Login with Google" tutorial to get your credentials
-      clientId: process.env.GOOGLE_ID,
-      clientSecret: process.env.GOOGLE_SECRET,
-      async profile(profile) {
-        return {
-          id: profile.sub,
-          name: profile.given_name ? profile.given_name : profile.name,
-          email: profile.email,
-          image: profile.picture,
-          createdAt: new Date(),
-        };
+    CredentialsProvider({
+      name: "Se connecter",
+      credentials: {
+        email: { label: "Email", type: "email", placeholder: "paradice@gmail.com" },
+        password: { label: "Password", type: "password", placeholder: "*******" },
       },
+
+      async authorize(credentials) {
+        const { email, password } = credentials;
+
+        const user = await userExist(email);
+        if (!user) {
+          return null;
+        }
+        const passwordMatch = await bcrypt.compare(credentials.password, user.user.credentials.password);
+
+        if (passwordMatch) {
+          return user.user;
+        }
+
+      }
     }),
     // Follow the "Login with Email" tutorial to set up your email server
     // Requires a MongoDB database. Set MONOGODB_URI env variable.
     ...(connectMongo
       ? [
-          EmailProvider({
-            server: {
-              host: "smtp.resend.com",
-              port: 465,
-              auth: {
-                user: "resend",
-                pass: process.env.RESEND_API_KEY,
-              },
+        EmailProvider({
+          server: {
+            host: "smtp.resend.com",
+            port: 465,
+            auth: {
+              user: "resend",
+              pass: process.env.RESEND_API_KEY,
             },
-            from: config.resend.fromNoReply,
-          }),
-        ]
+          },
+          from: config.resend.fromNoReply,
+        }),
+      ]
       : []),
   ],
   // New users will be saved in Database (MongoDB Atlas). Each user (model) has some fields like name, email, image, etc..
@@ -48,9 +63,31 @@ export const authOptions = {
   callbacks: {
     session: async ({ session, token }) => {
       if (session?.user) {
+        console.log("session", session)
         session.user.id = token.sub;
       }
+      if (session.user) {
+        session.user.username = token.name;
+        session.user.email = token.email;
+      }
+
       return session;
+    },
+    async jwt({ token }) {
+      if (!token.sub) {
+        return token;
+      }
+
+      const existingUser = await userExistById(token.sub);
+
+      if (!existingUser) {
+        return token;
+      }
+
+      token.name = existingUser.username;
+      token.email = existingUser.credentials.email;
+
+      return token;
     },
   },
   session: {

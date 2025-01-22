@@ -6,6 +6,7 @@ import { assignShirt, verificationCodeStep } from "@/actions/qrCode.actions";
 import { User, Mail, Lock } from "lucide-react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 
 export default function TShirtFlow({ uuid }) {
@@ -76,6 +77,8 @@ export default function TShirtFlow({ uuid }) {
         setStep(2);
     };
 
+
+
     // Motion variants for a simple left->right step transition
     const stepVariants = {
         hidden: { x: "50vw", opacity: 0 },
@@ -109,22 +112,72 @@ export default function TShirtFlow({ uuid }) {
         // Example: const result = await assignTshirtToUser({ uuid, email, username, password });
         // if (result.success) { ... } else { setRegisterError(result.error); }
         const data = { code: finalCode, uuid, email, username, password };
-       const result = await assignShirt(data);
+        const result = await assignShirt(data);
 
-        setRegisterLoading(false);
+
 
         if (!result.success) {
+            setRegisterLoading(false);
+
+            // Vérifie l’erreur précise
+            if (
+                result.error ===
+                "Email déja utilisé, connectez-vous avec ce compte et associez le shirt"
+            ) {
+                // On utilise un toast custom avec un bouton pour rediriger
+                toast.custom((t) => (
+                    <div className="alert alert-error shadow-lg p-4 flex flex-col gap-2 text-white w-96">
+                        <span>{result.error}</span>
+                        <div className="flex justify-center w-full">
+                            <button
+                                className="btn btn-sm btn-outline text-white"
+                                onClick={() => {
+                                    toast.dismiss(t.id);
+                                    router.push("/auth/login");
+                                }}
+                            >
+                                Se connecter
+                            </button>
+                        </div>
+                    </div>
+                ));
+
+            } else {
+                // Erreur générique
+                toast.error(result.error || "An error occurred");
+            }
+
+            // Si tu veux aussi afficher l’erreur dans un state local
             setRegisterError(result.error || "An error occurred");
             return;
         }
-    router.push(`/qr/${uuid}`);
 
+        // const res = await signIn("credentials", {
+        //     email,
+        //     password,
+        //     redirect: false,
+        // })
+
+        // if (res?.ok) {
+        //     router.push("/dashboard");
+        // }
+
+        // if (!res?.ok) {
+        //     console.error(res.error);
+        //     toast.error("Une erreur est survenue lors de la connexion");
+        //     setRegisterLoading(false);
+        //     return;
+        // }
+
+        router.push("/auth/login");
         // If success, you can redirect to a "success" page or do something else.
         toast.success("T-shirt associé avec succès !");
     };
 
+
+
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-4">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-white [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)] text-black p-4">
             {step === 1 && (
                 <motion.section
                     key="step1"
@@ -133,7 +186,7 @@ export default function TShirtFlow({ uuid }) {
                     className="flex flex-col items-center gap-6 max-w-sm w-full"
                 >
                     <h1 className="text-xl font-bold">Associer votre T-shirt</h1>
-                    <p className="text-center text-sm text-gray-200">
+                    <p className="text-center text-sm text-gray-700">
                         Veuillez saisir le code à 6 chiffres inscrit sur votre T-shirt
                         afin de l’associer à votre compte.
                     </p>
@@ -194,9 +247,11 @@ export default function TShirtFlow({ uuid }) {
                     </button>
 
                     {/* Return to login link */}
-                    <button className="btn btn-link text-blue-600 text-sm">
-                        J&apos;ai déjà un compte ? Me connecter
-                    </button>
+                    <a href="/auth/login" className="text-blue-600 text-sm">
+                        <button className="btn btn-link text-blue-600 text-sm">
+                            J&apos;ai déjà un compte ? Me connecter
+                        </button>
+                    </a>
                 </motion.section>
             )}
 
@@ -210,7 +265,7 @@ export default function TShirtFlow({ uuid }) {
                     className="flex flex-col items-center gap-6 max-w-sm w-full"
                 >
                     <h2 className="text-xl font-bold">Étape 2 : Votre Profil</h2>
-                    <p className="text-center text-sm text-gray-200">
+                    <p className="text-center text-sm text-gray-700">
                         Comment voulez-vous qu’on vous appelle ?
                     </p>
 
@@ -225,7 +280,7 @@ export default function TShirtFlow({ uuid }) {
                             onChange={(e) => setUsername(e.target.value)}
                         />
                     </label>
-                    <p className="text-center text-sm text-gray-200">
+                    <p className="text-center text-sm text-gray-700">
                         Choisissez un email et un mot de passe pour votre compte.
                     </p>
 

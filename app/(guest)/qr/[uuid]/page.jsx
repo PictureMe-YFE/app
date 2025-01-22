@@ -2,9 +2,8 @@ import { getQrCode } from "@/actions/qrCode.actions";
 import { redirect } from "next/navigation";
 import toast from "react-hot-toast";
 
-const QrPlayPage = async ({ params }) => {
+const QrPlayPage = async ({ params, searchParams }) => {
 
-    await new Promise((resolve) => setTimeout(resolve, 3000));
 
     const qrCode = await getQrCode(params.uuid)
     if (!qrCode.success && qrCode.notAssigned) {
@@ -15,7 +14,9 @@ const QrPlayPage = async ({ params }) => {
     return (
         <div className="p-6 text-white bg-black">
             <h1 className="text-2xl">QrPlayPage</h1>
-            <p>Ceci est la future gallerie du boug</p>
+            <p>Ceci est la future page de jeu</p>
+            {JSON.stringify(searchParams)}
+            {JSON.stringify(params)}
 
         </div>
     );

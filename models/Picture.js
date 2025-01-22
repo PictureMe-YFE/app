@@ -15,7 +15,7 @@ const photoSchema = new mongoose.Schema({
 
     BackImageUrl: {
         type: String,
-        required: true, // store the final URL or a path (e.g. from AWS S3, Cloudinary, etc.)
+        required: false, // store the final URL or a path (e.g. from AWS S3, Cloudinary, etc.)
     },
     },
     {

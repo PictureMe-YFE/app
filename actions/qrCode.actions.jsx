@@ -6,6 +6,10 @@ import Shirt from "@/models/Shirt";
 import Membre from "@/models/Membre";
 import { redirect } from 'next/navigation'
 import bcrypt from "bcryptjs";
+import Picture from "@/models/Picture";
+import { auth } from "@/libs/auths";
+import dayjs from "dayjs";
+
 
 
 export const getQrCode = async (uuid) => {
@@ -93,7 +97,6 @@ export const assignShirt = async (data) => {
   await connectMongo();
 
   try {
-    console.log(data)
     const shirt = await Shirt.findOne({ uuid: data.uuid }).lean();
 
     if (!shirt) {
@@ -118,11 +121,11 @@ export const assignShirt = async (data) => {
     }
 
     // Check if the email is already used
-    const member = await Membre.findOne({ email: data.email }).lean();
+    const member = await Membre.findOne({ "credentials.email": data.email }).lean();
     if (member) {
       return {
         success: false,
-        error: 'Email already in use',
+        error: 'Email déja utilisé, connectez-vous avec ce compte et associez le shirt',
       };
     }
 
@@ -164,3 +167,72 @@ export const assignShirt = async (data) => {
     };
   }
 };
+
+export const isAssignedShirtVerify = async (uuid) => {
+  await connectMongo();
+
+  try {
+    const shirt = await Shirt.findOne({ uuid }).lean();
+
+    if (!shirt) {
+      return {
+        success: false,
+        error: 'Shirt not found',
+      };
+    }
+
+    if (shirt.assignedTo) {
+      return {
+        success: false,
+        error: 'Shirt already assigned',
+      };
+    }
+
+    return {
+      success: true,
+    };
+
+  } catch (err) {
+    return {
+      success: false,
+      error: err.message,
+    };
+  }
+}
+
+export const getUserSlides = async () => {
+  await connectMongo();
+
+  const session = await auth();
+
+  if (!session) {
+    return {
+      success: false,
+      error: 'Not authenticated',
+    }
+  }
+
+  // 1. On trouve tous les T-shirts assignés à cet user (Membre)
+  const shirts = await Shirt.find({ assignedTo: session.user.id }).lean();
+  if (!shirts.length) {
+    return [];
+  }
+
+  // 2. Extraire tous les _id des shirts trouvés
+  const shirtIds = shirts.map((shirt) => shirt._id);
+
+  // 3. On récupère toutes les photos qui ont un shirtId dans ce tableau
+  const photos = await Picture.find({
+    shirtId: { $in: shirtIds },
+  })
+    .sort({ createdAt: -1 }) // si tu veux les plus récentes en premier
+    .lean();
+
+  // 4. On formate le résultat pour l’envoyer au composant Gallery
+  const slides = photos.map((p) => ({
+    src: p.FrontImageUrl,
+    date: dayjs(p.createdAt).format("DD/MM/YYYY"), // format de date
+  }));
+
+  return slides;
+}
