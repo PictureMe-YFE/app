@@ -99,7 +99,7 @@ function LoginCard() {
                         </div>
                         <button
                             type="submit"
-                            className={`btn btn-block btn-primary  rounded-md `}
+                            className={`btn btn-block bg-black text-white  rounded-md `}
                             disabled={isLoading}
                         >
                             {isLoading && <span className="loading loading-spinner"></span>}
