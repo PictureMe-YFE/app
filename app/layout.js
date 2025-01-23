@@ -22,6 +22,7 @@ export default function RootLayout({ children }) {
 		<html
 			lang="en"
 			className={font.className}
+			data-theme={config.colors.theme}
 		>
 			<body>
 				{/* ClientLayout contains all the client wrappers (Crisp chat support, toast messages, tooltips, etc.) */}
