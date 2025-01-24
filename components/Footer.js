@@ -37,9 +37,6 @@ const Footer = () => {
               Copyright © {new Date().getFullYear()} - All rights reserved
             </p>
             <a
-              href="https://shipfa.st/?ref=shipfast_badge"
-              title="Go to ShipFast"
-              target="_blank"
               className="mt-4 inline-block cursor-pointer rounded bg-neutral px-2 py-1 text-sm text-neutral-content ring-1 ring-base-content/10 duration-200 hover:ring-neutral"
             >
               <div className="flex items-center gap-1">
@@ -58,7 +55,7 @@ const Footer = () => {
                       strokeWidth="20"
                     />
                   </svg>
-                  ShipFast
+                  Passion
                 </span>
               </div>
             </a>
@@ -80,15 +77,10 @@ const Footer = () => {
                     Support
                   </a>
                 )}
-                <Link href="/#pricing" className="link link-hover">
-                  Pricing
+                <Link href="/liendushop" className="link link-hover">
+                  Shop
                 </Link>
-                <Link href="/blog" className="link link-hover">
-                  Blog
-                </Link>
-                <a href="/#" target="_blank" className="link link-hover">
-                  Affiliates
-                </a>
+
               </div>
             </div>
 

@@ -12,6 +12,7 @@ export default async function Dashboard() {
   const slides = await getUserSlides();
 
 
+
   return (
     <main className="min-h-screen  pb-24 bg-black antialiased ">
       <section className=" mx-auto ">
@@ -20,7 +21,17 @@ export default async function Dashboard() {
         </div>
         <h1 className="px-8 text-3xl md:text-4xl font-extrabold text-white">Your memories</h1>
         <div className="px-4">
-        <Gallery slides={slides} />
+
+          {
+            slides.length === 0 ? (
+              <div className="text-white text-center mt-8">
+                <p>No one created a memorie with you yet 🤨</p>
+              </div>
+            ) : (
+              <Gallery slides={slides} />
+            )
+          }
+
         </div>
       </section>
     </main>

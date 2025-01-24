@@ -1,4 +1,5 @@
 import { getQrCode } from "@/actions/qrCode.actions";
+import TakePhoto from "@/components/TakePhoto";
 import { redirect } from "next/navigation";
 import toast from "react-hot-toast";
 
@@ -12,13 +13,7 @@ const QrPlayPage = async ({ params, searchParams }) => {
     console.log(qrCode)
 
     return (
-        <div className="p-6 text-white bg-black">
-            <h1 className="text-2xl">QrPlayPage</h1>
-            <p>Ceci est la future page de jeu</p>
-            {JSON.stringify(searchParams)}
-            {JSON.stringify(params)}
-
-        </div>
+        <TakePhoto />
     );
 }
 

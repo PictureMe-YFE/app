@@ -40,6 +40,8 @@ export const userExist = async (email) => {
     }
 }
 
+
+
 export const userExistById = async (id) => {
     await connectMongo();
    
