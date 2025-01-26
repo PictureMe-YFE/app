@@ -1,5 +1,6 @@
 import { getQrCode } from "@/actions/qrCode.actions";
 import TakePhoto from "@/components/TakePhoto";
+import TakePhotoPermission from "@/components/TakePhotoPermission";
 import { redirect } from "next/navigation";
 import toast from "react-hot-toast";
 
@@ -13,7 +14,8 @@ const QrPlayPage = async ({ params, searchParams }) => {
     console.log(qrCode)
 
     return (
-        <TakePhoto />
+        // <TakePhoto />
+        <TakePhotoPermission />
     );
 }
 

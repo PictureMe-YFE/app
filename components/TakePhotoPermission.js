@@ -7,9 +7,12 @@ import { FaRegCircle } from "react-icons/fa";
 import Image from "next/image";
 import logo from "../app/logo.png";
 import { IoMdSend } from "react-icons/io";
+import { PiArrowBendLeftDownFill } from "react-icons/pi";
+import { Pi } from "lucide-react";
+import takePhotoPermissionPhoto from "../public/takePhotoPermissionPhoto.png"
 
 
-export default function TakePhoto() {
+export default function TakePhotoPermission() {
   const [flashOn, setFlashOn] = useState(false);
   const [isCameraFlipped, setIsCameraFlipped] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -58,6 +61,24 @@ export default function TakePhoto() {
     console.log("Image sent! : ", mainImageSrc, secondaryImageSrc);
   }
 
+  const handlePermission = async () => {
+    try {
+      // Demande l'autorisation pour accéder à la caméra
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  
+      // Si la permission est accordée, vous pouvez manipuler le flux
+      console.log("Camera permission granted", stream);
+  
+      // Ici, vous pouvez gérer ce que vous faites avec le flux de la caméra
+      // Par exemple : assigner le flux à une balise vidéo
+    } catch (error) {
+      // Gère les erreurs, comme un refus d'accès ou un problème matériel
+      console.error("Camera permission denied or error:", error);
+      alert("Impossible d'accéder à la caméra. Assurez-vous d'avoir donné la permission.");
+    }
+  };
+  
+
   return (
     <div className="flex flex-col bg-black h-screen gap-4 p-4">
       {/* Header */}
@@ -77,13 +98,45 @@ export default function TakePhoto() {
       </div>
 
       {/* Camera */}
-      <div className="relative flex items-center justify-center h-2/3">
+      <div className="relative flex items-center justify-center h-2/3 flex flex-col ">
         {/* Photo principale */}
-        <img
+        {/* <img
           src={mainImageSrc}
           alt="Main Capture"
-          className="h-full w-full object-cover rounded-lg transition-transform duration-500 ease-in-out scale-100"
-        />
+          className="h-full w-full object-cover rounded-lg transition-transform duration-500 ease-in-out scale-100 border-red-700 border-2"
+        /> */}
+
+        <div className="h-full w-full rounded-lg border-red-700 border-2 flex flex-col p-4 text-white">
+          <h1 className="text-2xl text-center mb-4">
+            Connecte ta Caméra à Sawarni, en toute sécurité
+          </h1>
+
+          <p className="text-center text-sm mb-6 text-gray-400">
+            Pour capturer l&apos;instant présent, Sawarni a besoin de ta permission.
+          </p>
+
+          {/* Conteneur bleu avec l'image */}
+          <div onClick={handlePermission} className="border-blue-600 border-2 h-auto mx-6 rounded-2xl overflow-hidden p-2">
+            <img
+              src="/takePhotoPermissionPhoto.png"
+              alt="Take Photo Permission"
+              className="h-full w-full object-cover"
+            />
+          </div>
+
+          {/* Flèche */}
+          <div className="flex flex-row justify-end">
+            <PiArrowBendLeftDownFill
+              size={64}
+              className="text-blue-600 rotate-180 mr-20 font-thin"
+            />
+          </div>
+
+          {/* Texte supplémentaire */}
+          <div className="flex flex-row justify-center items-center mt-8 text-lg break-words">
+            ( C&apos;est comme BeReal )
+          </div>
+        </div>
 
         {/* Afficher l'image secondaire uniquement si showSecondaryImage est true */}
         {showSecondaryImage && (
@@ -134,7 +187,7 @@ export default function TakePhoto() {
 
       {/* Camera Controls */}
       {showCameraControls ? (
-        <div className="flex flex-row justify-center gap-6 mt-4 pb-safe">
+        <div className="flex flex-row justify-center gap-6 mt-4">
           {/* Bouton Flash */}
           <button
             className="p-4 rounded-full text-white transition-all duration-300"
